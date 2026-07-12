@@ -85,14 +85,13 @@ export const AllocationsPage = () => {
                 <h3 className="text-lg font-medium text-gray-200 border-b border-gray-800 pb-2">Transfer Request</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* From (Disabled) */}
+                  {/* From (Active Input matching screenshot aesthetic) */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-medium text-gray-400">From</label>
                     <input 
                       type="text" 
-                      value={holder.name}
-                      disabled
-                      className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-500 cursor-not-allowed"
+                      defaultValue={holder.name}
+                      className="w-full px-4 py-2.5 bg-slate-800/40 border border-slate-700/60 rounded-lg text-slate-400 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 transition-all"
                     />
                   </div>
 
@@ -125,7 +124,7 @@ export const AllocationsPage = () => {
                   />
                 </div>
 
-                {/* Submit Button (Matching the wireframe's green vibe but keeping it premium) */}
+                {/* Submit Button */}
                 <button 
                   type="submit" 
                   disabled={isSubmitting}

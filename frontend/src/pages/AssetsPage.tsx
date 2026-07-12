@@ -3,6 +3,9 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { Badge } from '../components/common/Badge';
 import { mockAssets } from '../mockData/assets';
 import { Plus, Search, ChevronDown } from 'lucide-react';
+import { Modal } from '../components/common/Modal';
+import { FormInput } from '../components/common/FormInput';
+import { Button } from '../components/common/Button';
 // import { axiosClient } from '../api/axiosClient';
 // import { ENDPOINTS } from '../api/endpoints';
 
@@ -10,6 +13,7 @@ export const AssetsPage = () => {
   const [assets, setAssets] = useState(mockAssets);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   /*
   // TODO: Uncomment when backend is ready
@@ -29,6 +33,12 @@ export const AssetsPage = () => {
     fetchAssets();
   }, []);
   */
+
+  const handleRegisterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('Asset registered successfully! (Mock)');
+    setIsRegisterModalOpen(false);
+  };
 
   // Quick reusable component for the filter buttons
   const FilterButton = ({ label }: { label: string }) => (
@@ -55,7 +65,10 @@ export const AssetsPage = () => {
             />
           </div>
           
-          <button className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 border border-orange-600 bg-orange-600/10 text-orange-500 hover:bg-orange-600 hover:text-white shadow-sm whitespace-nowrap">
+          <button 
+            onClick={() => setIsRegisterModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold transition-all duration-200 border border-orange-600 bg-orange-600/10 text-orange-500 hover:bg-orange-600 hover:text-white shadow-sm whitespace-nowrap"
+          >
             <Plus size={18} />
             Register Asset
           </button>
@@ -115,6 +128,27 @@ export const AssetsPage = () => {
         </div>
 
       </div>
+
+      <Modal isOpen={isRegisterModalOpen} onClose={() => setIsRegisterModalOpen(false)} title="Register New Asset">
+        <form onSubmit={handleRegisterSubmit} className="space-y-4">
+          <FormInput label="Asset Name" placeholder="e.g. MacBook Pro 16" required />
+          <FormInput 
+            label="Category" 
+            as="select" 
+            options={[
+              { label: 'Electronics', value: 'electronics' },
+              { label: 'Furniture', value: 'furniture' },
+              { label: 'Vehicles', value: 'vehicles' }
+            ]} 
+            required 
+          />
+          <FormInput label="Location" placeholder="e.g. HQ - Floor 2" required />
+          <FormInput label="Acquisition Cost ($)" type="number" placeholder="2400.00" />
+          <div className="pt-4">
+            <Button type="submit">Submit Registration</Button>
+          </div>
+        </form>
+      </Modal>
     </AppLayout>
   );
 };
