@@ -3,6 +3,9 @@ import { AppLayout } from '../components/layout/AppLayout';
 import { Badge } from '../components/common/Badge';
 import { mockDepartments } from '../mockData/organization';
 import { Plus } from 'lucide-react';
+import { Modal } from '../components/common/Modal';
+import { FormInput } from '../components/common/FormInput';
+import { Button } from '../components/common/Button';
 // import { axiosClient } from '../../api/axiosClient';
 // import { ENDPOINTS } from '../../api/endpoints';
 
@@ -12,6 +15,7 @@ export const OrganizationPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('Departments');
   const [departments, setDepartments] = useState(mockDepartments);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   /*
   // TODO: Uncomment when backend is ready
@@ -37,6 +41,12 @@ export const OrganizationPage = () => {
 
   const tabs: TabType[] = ['Departments', 'Categories', 'Employee'];
 
+  const handleAddSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(`Added new ${activeTab.slice(0, -1).toLowerCase()} successfully!`);
+    setIsAddModalOpen(false);
+  };
+
   return (
     <AppLayout>
       <div className="p-8 max-w-7xl mx-auto space-y-6">
@@ -59,7 +69,10 @@ export const OrganizationPage = () => {
             ))}
           </div>
           
-          <button className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all duration-200 border border-gray-700 bg-gray-800 text-gray-200 hover:border-orange-500 hover:text-orange-400 shadow-sm">
+          <button 
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all duration-200 border border-gray-700 bg-gray-800 text-gray-200 hover:border-orange-500 hover:text-orange-400 shadow-sm"
+          >
             <Plus size={18} />
             Add
           </button>
@@ -110,6 +123,41 @@ export const OrganizationPage = () => {
         </div>
 
       </div>
+
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        title={`Add New ${activeTab === 'Categories' ? 'Category' : activeTab.slice(0, -1)}`}
+      >
+        <form onSubmit={handleAddSubmit} className="space-y-4">
+          {activeTab === 'Departments' && (
+            <>
+              <FormInput label="Department Name" placeholder="e.g. Marketing" required />
+              <FormInput label="Head of Department (Employee ID)" placeholder="e.g. 104" required />
+              <FormInput label="Parent Department (Optional)" placeholder="e.g. Operations" />
+            </>
+          )}
+
+          {activeTab === 'Categories' && (
+            <>
+              <FormInput label="Category Name" placeholder="e.g. Furniture" required />
+              <FormInput label="Description" as="textarea" placeholder="Optional details..." />
+            </>
+          )}
+
+          {activeTab === 'Employee' && (
+            <>
+              <FormInput label="Full Name" placeholder="e.g. Jane Smith" required />
+              <FormInput label="Email Address" type="email" placeholder="jane@company.com" required />
+              <FormInput label="Department ID" placeholder="e.g. 4" required />
+            </>
+          )}
+
+          <div className="pt-4">
+            <Button type="submit">Create Record</Button>
+          </div>
+        </form>
+      </Modal>
     </AppLayout>
   );
 };
