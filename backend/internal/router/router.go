@@ -41,6 +41,9 @@ func Register(e *echo.Echo, cfg *config.Config, h *handler.Handlers) {
 
 	authed.GET("/dashboard/metrics", h.Dashboard.Metrics)
 	authed.GET("/dashboard/alerts", h.Dashboard.Alerts)
+	
+	authed.GET("/notifications", h.Notification.List)
+	authed.PUT("/notifications/:id/read", h.Notification.MarkRead)
 
 	authed.GET("/assets", h.Asset.List)
 	authed.GET("/assets/:id", h.Asset.GetByID)

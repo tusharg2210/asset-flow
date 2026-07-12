@@ -86,7 +86,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	if u.Status != model.StatusActive {
 		return util.Fail(c, http.StatusForbidden, "account is inactive")
 	}
-	if !util.CheckPassword(req.Password, u.Password) {
+	if !util.CheckPassword(u.Password, req.Password) {
 		return util.Fail(c, http.StatusUnauthorized, "invalid email or password")
 	}
 

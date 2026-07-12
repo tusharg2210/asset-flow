@@ -1,32 +1,60 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
-import { mockLogs,type FilterTab } from '../mockData/notifications';
-// import { axiosClient } from '../api/axiosClient';
-// import { ENDPOINTS } from '../api/endpoints';
+import { axiosClient } from '../api/axiosClient';
+import { ENDPOINTS } from '../api/endpoints';
+
+type FilterTab = 'All' | 'Alerts' | 'Approvals' | 'Bookings';
 
 export const NotificationsPage = () => {
   const [activeTab, setActiveTab] = useState<FilterTab>('All');
-  const [logs, setLogs] = useState(mockLogs);
+  const [logs, setLogs] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  /*
-  // TODO: Uncomment when backend is ready
+  const getCategoryFromType = (type: string) => {
+    if (['OVERDUE_RETURN', 'AUDIT_DISCREPANCY'].includes(type)) return 'Alerts';
+    if (['MAINTENANCE_APPROVED', 'MAINTENANCE_REJECTED', 'TRANSFER_APPROVED'].includes(type)) return 'Approvals';
+    if (['BOOKING_CONFIRMED', 'BOOKING_CANCELLED', 'BOOKING_REMINDER'].includes(type)) return 'Bookings';
+    return 'All';
+  };
+
+  const getIndicatorClass = (type: string) => {
+    if (['OVERDUE_RETURN', 'AUDIT_DISCREPANCY', 'MAINTENANCE_REJECTED'].includes(type)) return 'bg-red-500';
+    if (['MAINTENANCE_APPROVED', 'TRANSFER_APPROVED', 'BOOKING_CONFIRMED'].includes(type)) return 'bg-emerald-500';
+    return 'bg-blue-500';
+  };
+
+  const fetchNotifications = async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await axiosClient.get(ENDPOINTS.NOTIFICATIONS.ALL);
+      // Wait! The List endpoint returns standard Envelope, so axios response data contains the wrapper.
+      // And inside the wrapper, it has "data" array of notifications, because of map[string]any{"data": notifications, ...}
+      // Let's verify how it is returned in backend:
+      // return util.Success(c, http.StatusOK, map[string]any{"data": notifications, ...})
+      // So data.data contains the list of notifications!
+      const rawNotifications = data?.data || data || [];
+      const mapped = rawNotifications.map((n: any) => ({
+        id: n.id,
+        text: n.message,
+        category: getCategoryFromType(n.type),
+        time: n.created_at ? new Date(n.created_at).toLocaleTimeString() : 'Recent',
+        indicatorClass: getIndicatorClass(n.type),
+        isRead: n.is_read
+      }));
+      setLogs(mapped);
+    } catch (error) {
+      console.error('Failed to fetch notifications', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const { data } = await axiosClient.get(ENDPOINTS.NOTIFICATIONS.ALL);
-        // Map backend data to local state
-        // setLogs(data);
-      } catch (error) {
-        console.error('Failed to fetch notifications', error);
-      }
-    };
     fetchNotifications();
   }, []);
-  */
 
   const tabs: FilterTab[] = ['All', 'Alerts', 'Approvals', 'Bookings'];
 
-  // Filter logic based on the selected tab
   const filteredLogs = logs.filter(log => {
     if (activeTab === 'All') return true;
     return log.category === activeTab;
@@ -55,7 +83,9 @@ export const NotificationsPage = () => {
 
         {/* Logs List */}
         <div className="flex flex-col">
-          {filteredLogs.length > 0 ? (
+          {isLoading ? (
+            <div className="py-12 text-center text-gray-500">Loading notifications...</div>
+          ) : filteredLogs.length > 0 ? (
             filteredLogs.map((log) => (
               <div 
                 key={log.id} 

@@ -1,51 +1,99 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { Badge } from '../components/common/Badge';
-import { mockDepartments } from '../mockData/organization';
 import { Plus } from 'lucide-react';
 import { Modal } from '../components/common/Modal';
 import { FormInput } from '../components/common/FormInput';
 import { Button } from '../components/common/Button';
-// import { axiosClient } from '../../api/axiosClient';
-// import { ENDPOINTS } from '../../api/endpoints';
+import { axiosClient } from '../api/axiosClient';
+import { ENDPOINTS } from '../api/endpoints';
 
 type TabType = 'Departments' | 'Categories' | 'Employee';
 
 export const OrganizationPage = () => {
   const [activeTab, setActiveTab] = useState<TabType>('Departments');
-  const [departments, setDepartments] = useState(mockDepartments);
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  /*
-  // TODO: Uncomment when backend is ready
-  useEffect(() => {
-    const fetchTabContent = async () => {
-      setIsLoading(true);
-      try {
-        if (activeTab === 'Departments') {
-          const { data } = await axiosClient.get(ENDPOINTS.ORGANIZATION.DEPARTMENTS);
-          setDepartments(data);
-        }
-        // Handle Categories and Employee fetching here based on activeTab
-      } catch (error) {
-        console.error(`Failed to fetch ${activeTab}`, error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // Form States
+  // Department Form
+  const [deptName, setDeptName] = useState('');
+  const [deptHeadId, setDeptHeadId] = useState('');
+  const [deptParentId, setDeptParentId] = useState('');
 
+  // Category Form
+  const [catName, setCatName] = useState('');
+
+  // Employee Form
+  const [empName, setEmpName] = useState('');
+  const [empEmail, setEmpEmail] = useState('');
+  const [empPassword, setEmpPassword] = useState('SecurePassword123!');
+
+  const fetchTabContent = async () => {
+    setIsLoading(true);
+    try {
+      if (activeTab === 'Departments') {
+        const { data } = await axiosClient.get(ENDPOINTS.ORGANIZATION.DEPARTMENTS);
+        setDepartments(data || []);
+      } else if (activeTab === 'Categories') {
+        const { data } = await axiosClient.get(ENDPOINTS.ORGANIZATION.ASSET_CATEGORIES);
+        setCategories(data || []);
+      } else if (activeTab === 'Employee') {
+        const { data } = await axiosClient.get(ENDPOINTS.ORGANIZATION.USERS);
+        setEmployees(data || []);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch ${activeTab}`, error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTabContent();
   }, [activeTab]);
-  */
+
+  const handleAddSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (activeTab === 'Departments') {
+        await axiosClient.post(ENDPOINTS.ORGANIZATION.DEPARTMENTS, {
+          name: deptName,
+          head_id: deptHeadId ? parseInt(deptHeadId, 10) : null,
+          parent_department_id: deptParentId ? parseInt(deptParentId, 10) : null
+        });
+        setDeptName('');
+        setDeptHeadId('');
+        setDeptParentId('');
+      } else if (activeTab === 'Categories') {
+        await axiosClient.post(ENDPOINTS.ORGANIZATION.ASSET_CATEGORIES, {
+          name: catName
+        });
+        setCatName('');
+      } else if (activeTab === 'Employee') {
+        await axiosClient.post(ENDPOINTS.AUTH.SIGNUP, {
+          name: empName,
+          email: empEmail,
+          password: empPassword
+        });
+        setEmpName('');
+        setEmpEmail('');
+      }
+      alert(`Added new ${activeTab.slice(0, -1).toLowerCase()} successfully!`);
+      setIsAddModalOpen(false);
+      fetchTabContent();
+    } catch (error) {
+      console.error('Failed to create record:', error);
+      alert('Failed to create record.');
+    }
+  };
 
   const tabs: TabType[] = ['Departments', 'Categories', 'Employee'];
 
-  const handleAddSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(`Added new ${activeTab.slice(0, -1).toLowerCase()} successfully!`);
-    setIsAddModalOpen(false);
-  };
+
 
   return (
     <AppLayout>
@@ -82,12 +130,29 @@ export const OrganizationPage = () => {
         <div className="bg-gray-800 border border-gray-700 rounded-xl overflow-hidden shadow-sm mt-6">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-900/50 border-b border-gray-700 text-gray-400 text-sm">
-                <th className="px-6 py-4 font-medium">Department</th>
-                <th className="px-6 py-4 font-medium">Head</th>
-                <th className="px-6 py-4 font-medium">Parent Dept</th>
-                <th className="px-6 py-4 font-medium">Status</th>
-              </tr>
+              {activeTab === 'Departments' && (
+                <tr className="bg-gray-900/50 border-b border-gray-700 text-gray-400 text-sm">
+                  <th className="px-6 py-4 font-medium">Department Name</th>
+                  <th className="px-6 py-4 font-medium">Head of Department ID</th>
+                  <th className="px-6 py-4 font-medium">Parent Dept ID</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                </tr>
+              )}
+              {activeTab === 'Categories' && (
+                <tr className="bg-gray-900/50 border-b border-gray-700 text-gray-400 text-sm">
+                  <th className="px-6 py-4 font-medium">Category Name</th>
+                  <th className="px-6 py-4 font-medium">Category ID</th>
+                  <th className="px-6 py-4 font-medium">Created At</th>
+                </tr>
+              )}
+              {activeTab === 'Employee' && (
+                <tr className="bg-gray-900/50 border-b border-gray-700 text-gray-400 text-sm">
+                  <th className="px-6 py-4 font-medium">Name</th>
+                  <th className="px-6 py-4 font-medium">Email</th>
+                  <th className="px-6 py-4 font-medium">Role</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                </tr>
+              )}
             </thead>
             <tbody className="text-gray-300">
               {isLoading ? (
@@ -96,20 +161,63 @@ export const OrganizationPage = () => {
                     Loading data...
                   </td>
                 </tr>
-              ) : (
-                departments.map((dept) => (
-                  <tr 
-                    key={dept.id} 
-                    className="border-b border-gray-700/50 last:border-0 hover:bg-gray-700/20 transition-colors"
-                  >
-                    <td className="px-6 py-4">{dept.name}</td>
-                    <td className="px-6 py-4 capitalize">{dept.head}</td>
-                    <td className="px-6 py-4 text-gray-500">{dept.parent}</td>
-                    <td className="px-6 py-4">
-                      <Badge status={dept.status} />
-                    </td>
+              ) : activeTab === 'Departments' ? (
+                departments.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">No departments setup.</td>
                   </tr>
-                ))
+                ) : (
+                  departments.map((dept) => (
+                    <tr 
+                      key={dept.id} 
+                      className="border-b border-gray-700/50 last:border-0 hover:bg-gray-700/20 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-gray-200">{dept.name}</td>
+                      <td className="px-6 py-4 font-mono text-sm text-gray-400">{dept.head_id || '-'}</td>
+                      <td className="px-6 py-4 font-mono text-sm text-gray-400">{dept.parent_department_id || '-'}</td>
+                      <td className="px-6 py-4">
+                        <Badge status={dept.status} />
+                      </td>
+                    </tr>
+                  ))
+                )
+              ) : activeTab === 'Categories' ? (
+                categories.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-8 text-center text-gray-500">No categories setup.</td>
+                  </tr>
+                ) : (
+                  categories.map((cat) => (
+                    <tr 
+                      key={cat.id} 
+                      className="border-b border-gray-700/50 last:border-0 hover:bg-gray-700/20 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-gray-200">{cat.name}</td>
+                      <td className="px-6 py-4 font-mono text-sm text-gray-400">{cat.id}</td>
+                      <td className="px-6 py-4 text-gray-400">{cat.created_at ? new Date(cat.created_at).toLocaleDateString() : 'N/A'}</td>
+                    </tr>
+                  ))
+                )
+              ) : (
+                employees.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-500">No employees directory setup.</td>
+                  </tr>
+                ) : (
+                  employees.map((emp) => (
+                    <tr 
+                      key={emp.id} 
+                      className="border-b border-gray-700/50 last:border-0 hover:bg-gray-700/20 transition-colors"
+                    >
+                      <td className="px-6 py-4 font-medium text-gray-200">{emp.name}</td>
+                      <td className="px-6 py-4">{emp.email}</td>
+                      <td className="px-6 py-4 text-orange-400 font-medium text-xs tracking-wider">{emp.role}</td>
+                      <td className="px-6 py-4">
+                        <Badge status={emp.status} />
+                      </td>
+                    </tr>
+                  ))
+                )
               )}
             </tbody>
           </table>
@@ -118,7 +226,7 @@ export const OrganizationPage = () => {
         {/* Contextual Helper Text */}
         <div className="pt-4 border-t border-gray-800">
           <p className="text-sm text-gray-500">
-            Editing a department here also drives the picklist in Asset Registration and Allocations.
+            Adding departments, categories, and employees here feeds setup parameters dynamically to the rest of the application.
           </p>
         </div>
 
@@ -132,24 +240,65 @@ export const OrganizationPage = () => {
         <form onSubmit={handleAddSubmit} className="space-y-4">
           {activeTab === 'Departments' && (
             <>
-              <FormInput label="Department Name" placeholder="e.g. Marketing" required />
-              <FormInput label="Head of Department (Employee ID)" placeholder="e.g. 104" required />
-              <FormInput label="Parent Department (Optional)" placeholder="e.g. Operations" />
+              <FormInput 
+                label="Department Name" 
+                placeholder="e.g. Marketing" 
+                value={deptName}
+                onChange={(e) => setDeptName(e.target.value)}
+                required 
+              />
+              <FormInput 
+                label="Head of Department (Employee User ID)" 
+                placeholder="e.g. 4" 
+                value={deptHeadId}
+                onChange={(e) => setDeptHeadId(e.target.value)}
+              />
+              <FormInput 
+                label="Parent Department ID (Optional)" 
+                placeholder="e.g. 1" 
+                value={deptParentId}
+                onChange={(e) => setDeptParentId(e.target.value)}
+              />
             </>
           )}
 
           {activeTab === 'Categories' && (
             <>
-              <FormInput label="Category Name" placeholder="e.g. Furniture" required />
-              <FormInput label="Description" as="textarea" placeholder="Optional details..." />
+              <FormInput 
+                label="Category Name" 
+                placeholder="e.g. Furniture" 
+                value={catName}
+                onChange={(e) => setCatName(e.target.value)}
+                required 
+              />
             </>
           )}
 
           {activeTab === 'Employee' && (
             <>
-              <FormInput label="Full Name" placeholder="e.g. Jane Smith" required />
-              <FormInput label="Email Address" type="email" placeholder="jane@company.com" required />
-              <FormInput label="Department ID" placeholder="e.g. 4" required />
+              <FormInput 
+                label="Full Name" 
+                placeholder="e.g. Jane Smith" 
+                value={empName}
+                onChange={(e) => setEmpName(e.target.value)}
+                required 
+              />
+              <FormInput 
+                label="Email Address" 
+                type="email" 
+                placeholder="jane@company.com" 
+                value={empEmail}
+                onChange={(e) => setEmpEmail(e.target.value)}
+                required 
+              />
+              <FormInput 
+                label="Initial Password" 
+                type="password" 
+                placeholder="SecurePassword123!" 
+                value={empPassword}
+                onChange={(e) => setEmpPassword(e.target.value)}
+                required 
+              />
             </>
           )}
 

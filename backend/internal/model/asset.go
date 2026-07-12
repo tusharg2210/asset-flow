@@ -7,8 +7,8 @@ type Asset struct {
 	Tag               string     `json:"tag" db:"tag"`
 	Name              string     `json:"name" db:"name"`
 	CategoryID        *int64     `json:"category_id,omitempty" db:"category_id"`
-	SerialNumber      string     `json:"serial_number" db:"serial_number"`
-	QRCode            string     `json:"qr_code" db:"qr_code"`
+	SerialNumber      *string    `json:"serial_number" db:"serial_number"`
+	QRCode            *string    `json:"qr_code" db:"qr_code"`
 	Status            string     `json:"status" db:"status"`
 	Location          string     `json:"location" db:"location"`
 	ExpectedLocation  string     `json:"expected_location" db:"expected_location"`

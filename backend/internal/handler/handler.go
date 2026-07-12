@@ -8,33 +8,35 @@ import (
 )
 
 type Handlers struct {
-	Auth        *AuthHandler
-	Dashboard   *DashboardHandler
-	Department  *DepartmentHandler
-	Category    *CategoryHandler
-	User        *UserHandler
-	Asset       *AssetHandler
-	Allocation  *AllocationHandler
-	Booking     *BookingHandler
-	Maintenance *MaintenanceHandler
-	Audit       *AuditHandler
-	Report      *ReportHandler
-	Log         *LogHandler
+	Auth         *AuthHandler
+	Dashboard    *DashboardHandler
+	Department   *DepartmentHandler
+	Category     *CategoryHandler
+	User         *UserHandler
+	Asset        *AssetHandler
+	Allocation   *AllocationHandler
+	Booking      *BookingHandler
+	Maintenance  *MaintenanceHandler
+	Audit        *AuditHandler
+	Report       *ReportHandler
+	Log          *LogHandler
+	Notification *NotificationHandler
 }
 
 func New(repos *repository.Repositories, pool *pgxpool.Pool, cfg *config.Config) *Handlers {
 	return &Handlers{
-		Auth:      NewAuthHandler(repos.User, cfg.JWT),
-		Dashboard: NewDashboardHandler(repos.Asset, repos.Allocation, repos.Booking, repos.Transfer, repos.Maintenance),
-		Department: NewDepartmentHandler(repos.Department),
-		Category:   NewCategoryHandler(repos.Category),
-		User:       NewUserHandler(repos.User),
-		Asset:      NewAssetHandler(repos.Asset, repos.Allocation, repos.Maintenance, repos.Category),
-		Allocation: NewAllocationHandler(pool, repos.Asset, repos.Allocation, repos.Transfer),
-		Booking:    NewBookingHandler(pool, repos.Booking),
-		Maintenance: NewMaintenanceHandler(pool, repos.Maintenance, repos.Asset),
-		Audit:      NewAuditHandler(pool, repos.Audit, repos.Asset),
-		Report:     NewReportHandler(),
-		Log:        NewLogHandler(repos.ActivityLog),
+		Auth:         NewAuthHandler(repos.User, cfg.JWT),
+		Dashboard:    NewDashboardHandler(repos.Asset, repos.Allocation, repos.Booking, repos.Transfer, repos.Maintenance),
+		Department:   NewDepartmentHandler(repos.Department),
+		Category:     NewCategoryHandler(repos.Category),
+		User:         NewUserHandler(repos.User),
+		Asset:        NewAssetHandler(repos.Asset, repos.Allocation, repos.Maintenance, repos.Category),
+		Allocation:   NewAllocationHandler(pool, repos.Asset, repos.Allocation, repos.Transfer),
+		Booking:      NewBookingHandler(pool, repos.Booking),
+		Maintenance:  NewMaintenanceHandler(pool, repos.Maintenance, repos.Asset),
+		Audit:        NewAuditHandler(pool, repos.Audit, repos.Asset),
+		Report:       NewReportHandler(),
+		Log:          NewLogHandler(repos.ActivityLog),
+		Notification: NewNotificationHandler(repos.Notification),
 	}
 }

@@ -18,6 +18,8 @@ func CORS(
 			AllowMethods: []string{
 				"GET",
 				"POST",
+				"PUT",
+				"PATCH",
 				"DELETE",
 				"OPTIONS",
 			},

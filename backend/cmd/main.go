@@ -15,6 +15,7 @@ import (
 	echomw "github.com/labstack/echo/v4/middleware"
 
 	"asset-flow/internal/config"
+	"asset-flow/internal/db"
 	"asset-flow/internal/handler"
 	appmw "asset-flow/internal/middleware"
 	"asset-flow/internal/repository"
@@ -39,6 +40,10 @@ func main() {
 	srv, err := server.New(cfg)
 	if err != nil {
 		log.Fatalf("failed to initialize server: %v", err)
+	}
+
+	if err := db.SeedData(context.Background(), srv.DB.Pool); err != nil {
+		log.Printf("warning: database seeding failed: %v", err)
 	}
 
 	repos := repository.New(srv.DB.Pool)

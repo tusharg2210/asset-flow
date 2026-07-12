@@ -1,13 +1,15 @@
-AssetFlow Backend
+AssetFlow Asset Management System
 
-A scalable and modular backend service for the AssetFlow Asset Management System, built with Go (Golang) and PostgreSQL.
+AssetFlow is a scalable and modular full-stack application for managing organizational assets, allocations, bookings, maintenance, and audits. It features a modern React frontend and a robust Go backend connected to a live Supabase PostgreSQL database.
 
-The application follows a clean, domain-driven architecture where each business module is organized into its own package with dedicated handler, service, and repository layers.
+The application follows a clean, domain-driven architecture where each business module is organized into its own package with dedicated handler, service, and repository layers on the backend, seamlessly communicating with the frontend React UI.
 
 ---
 
 Features
 
+- Real-time API Integration (No Mock Data)
+- Supabase PostgreSQL Database Integration
 - JWT Authentication & Authorization
 - Role-Based Access Control (RBAC)
 - Organization & Employee Management
@@ -17,11 +19,8 @@ Features
 - Maintenance Workflow
 - Asset Audits & Verification
 - Dashboard KPIs & Analytics
-- PostgreSQL Database
-- SQL Migrations
 - Standardized JSON Responses
 - Request Logging Middleware
-- Modular Domain-Based Architecture
 
 ---
 
@@ -350,8 +349,15 @@ Security
 
 Tech Stack
 
+**Frontend:**
+- React (Vite)
+- TypeScript
+- Tailwind CSS
+- Axios
+
+**Backend:**
 - Go (Golang)
-- PostgreSQL
+- PostgreSQL (Supabase)
 - JWT Authentication
 - bcrypt
 - SQL Migrations

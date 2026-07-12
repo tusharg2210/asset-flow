@@ -64,7 +64,7 @@ func (h *AssetHandler) List(c echo.Context) error {
 type createAssetRequest struct {
 	Name              string   `json:"name" validate:"required,min=2,max=200"`
 	CategoryID        *int64   `json:"category_id"`
-	SerialNumber      string   `json:"serial_number"`
+	SerialNumber      *string  `json:"serial_number"`
 	Location          string   `json:"location" validate:"required"`
 	Condition         string   `json:"condition" validate:"required"`
 	PhotosDocs        []string `json:"photos_docs"`
