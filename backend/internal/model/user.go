@@ -16,7 +16,6 @@ type User struct {
 	DeletedAt    *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Role constants mirror the user_role Postgres enum.
 const (
 	RoleEmployee       = "EMPLOYEE"
 	RoleDepartmentHead = "DEPARTMENT_HEAD"
@@ -24,7 +23,6 @@ const (
 	RoleAdmin          = "ADMIN"
 )
 
-// Status constants mirror the user_status Postgres enum.
 const (
 	StatusActive   = "ACTIVE"
 	StatusInactive = "INACTIVE"

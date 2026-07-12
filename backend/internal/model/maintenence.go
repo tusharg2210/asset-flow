@@ -16,7 +16,6 @@ type Maintenance struct {
 	DeletedAt            *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Priorities, mirroring the maintenance_priority enum.
 const (
 	PriorityLow      = "LOW"
 	PriorityMedium   = "MEDIUM"
@@ -24,7 +23,6 @@ const (
 	PriorityCritical = "CRITICAL"
 )
 
-// Maintenance workflow states, mirroring the maintenance_status enum.
 const (
 	MaintenancePending             = "PENDING"
 	MaintenanceApproved            = "APPROVED"

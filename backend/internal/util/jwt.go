@@ -27,25 +27,19 @@ type Claims struct {
 	Type   TokenType `json:"type"`
 	jwt.RegisteredClaims
 }
-// --- convenience wrappers, added for handler/middleware use ---
 
-// GenerateAccessToken issues a short-lived token used to authenticate API calls.
 func GenerateAccessToken(secret string, userID int64, role string, ttl time.Duration) (string, error) {
 	return GenerateToken(secret, userID, role, AccessToken, ttl)
 }
 
-// GenerateRefreshToken issues a long-lived token, meant to live in an
-// HttpOnly cookie and be exchanged for a new access token.
 func GenerateRefreshToken(secret string, userID int64, role string, ttl time.Duration) (string, error) {
 	return GenerateToken(secret, userID, role, RefreshToken, ttl)
 }
 
-// ParseAccessToken validates a token presented in the Authorization header.
 func ParseAccessToken(secret, tokenString string) (*Claims, error) {
 	return ParseToken(secret, tokenString, AccessToken)
 }
 
-// ParseRefreshToken validates a token presented via the refresh cookie.
 func ParseRefreshToken(secret, tokenString string) (*Claims, error) {
 	return ParseToken(secret, tokenString, RefreshToken)
 }

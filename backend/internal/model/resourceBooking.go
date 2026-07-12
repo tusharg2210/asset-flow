@@ -12,7 +12,6 @@ type ResourceBooking struct {
 	DeletedAt     *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Booking statuses, mirroring the booking_status enum.
 const (
 	BookingUpcoming  = "UPCOMING"
 	BookingOngoing   = "ONGOING"

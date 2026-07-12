@@ -13,7 +13,6 @@ type Notification struct {
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 }
 
-// Notification types, mirroring the notification_type enum.
 const (
 	NotifAssetAssigned         = "ASSET_ASSIGNED"
 	NotifMaintenanceApproved   = "MAINTENANCE_APPROVED"
