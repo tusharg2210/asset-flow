@@ -62,7 +62,7 @@ func (h *DashboardHandler) Metrics(c echo.Context) error {
 		"maintenanceToday": maintenanceToday,
 		"activeBookings":   activeBookings,
 		"pendingTransfers": pendingTransfers,
-		"upcomingReturns":  len(overdue), // TODO: split into "upcoming" (not yet due) vs "overdue" — see Alerts below
+		"upcomingReturns":  len(overdue), 
 	})
 }
 
@@ -79,7 +79,7 @@ func (h *DashboardHandler) Alerts(c echo.Context) error {
 	}
 
 	return util.Success(c, http.StatusOK, echo.Map{
-		"overdueAllocations": overdue, // service layer should enrich with asset_tag / held_by / days_overdue before this reaches JSON
+		"overdueAllocations": overdue,
 		"pendingTransfers":   pendingTransfers,
 	})
 }

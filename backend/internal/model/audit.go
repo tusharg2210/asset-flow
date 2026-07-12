@@ -16,7 +16,6 @@ type Audit struct {
 	DeletedAt         *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Audit cycle statuses, mirroring the audit_cycle_status enum.
 const (
 	AuditDraft  = "DRAFT"
 	AuditOpen   = "OPEN"
@@ -36,7 +35,6 @@ type AuditReport struct {
 	DeletedAt          *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Verification statuses, mirroring the audit_verification_status enum.
 const (
 	VerificationPending  = "PENDING"
 	VerificationVerified = "VERIFIED"

@@ -12,6 +12,3 @@ type Department struct {
 	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
 	DeletedAt          *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
-
-// Department reuses model.StatusActive / model.StatusInactive (defined in
-// user.go) since department_status has the same two values as user_status.

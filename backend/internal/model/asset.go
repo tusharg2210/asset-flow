@@ -24,7 +24,6 @@ type Asset struct {
 	DeletedAt         *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Asset lifecycle states, mirroring the asset_status enum.
 const (
 	AssetAvailable        = "AVAILABLE"
 	AssetAllocated        = "ALLOCATED"

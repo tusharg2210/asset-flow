@@ -18,7 +18,7 @@ type TransferRequest struct {
 	DeletedAt   *time.Time `json:"deleted_at,omitempty" db:"deleted_at"`
 }
 
-// Transfer statuses, mirroring the transfer_status enum.
+
 const (
 	TransferRequested = "REQUESTED"
 	TransferApproved  = "APPROVED"
