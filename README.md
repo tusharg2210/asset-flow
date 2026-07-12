@@ -1,385 +1,165 @@
-AssetFlow Asset Management System
+# 🏢 AssetFlow
 
-AssetFlow is a scalable and modular full-stack application for managing organizational assets, allocations, bookings, maintenance, and audits. It features a modern React frontend and a robust Go backend connected to a live Supabase PostgreSQL database.
+**A full-stack, enterprise-grade Asset Management System built with React, Go, and PostgreSQL.**
 
-The application follows a clean, domain-driven architecture where each business module is organized into its own package with dedicated handler, service, and repository layers on the backend, seamlessly communicating with the frontend React UI.
-
----
-
-Features
-
-- Real-time API Integration (No Mock Data)
-- Supabase PostgreSQL Database Integration
-- JWT Authentication & Authorization
-- Role-Based Access Control (RBAC)
-- Organization & Employee Management
-- Asset Registration & Asset Directory
-- Asset Allocation & Transfers
-- Resource Booking with Conflict Detection
-- Maintenance Workflow
-- Asset Audits & Verification
-- Dashboard KPIs & Analytics
-- Standardized JSON Responses
-- Request Logging Middleware
+AssetFlow is a scalable application designed to track, manage, and optimize organizational assets. It supports end-to-end workflows including employee management, asset directory tracking, allocations, reservations with conflict detection, ticketing for maintenance, physical audit cycles, and real-time dashboard analytics.
 
 ---
 
-Project Structure
+## ✨ Core Features
 
-assetflow-backend/
-│
-├── cmd/
-│   └── server/
-│       └── main.go
-│
-├── internal/
-│   ├── config/
-│   ├── database/
-│   ├── middleware/
-│   ├── models/
-│   ├── auth/
-│   ├── organization/
-│   ├── assets/
-│   ├── allocations/
-│   ├── bookings/
-│   ├── maintenance/
-│   ├── audits/
-│   ├── dashboard/
-│   └── utils/
-│
-├── migrations/
-├── pkg/
-├── go.mod
-├── go.sum
-└── .env
+*   🔐 **Role-Based Access Control (RBAC):** Distinct workflows for `Admin`, `Asset Manager`, and `Employee` user tiers using JWT authentication.
+*   📦 **Asset Directory & Lifecycle:** Comprehensive registration for physical assets (electronics, vehicles, furniture), tracking condition, location, and acquisition details.
+*   🔄 **Allocations & Transfers:** Assign assets to specific employees or departments and maintain an immutable historical chain of custody.
+*   📅 **Resource Booking:** Smart booking calendar for shared resources (e.g., conference rooms, projectors) with strict overlap conflict detection.
+*   🛠 **Maintenance Workflows:** Raise, track, and resolve maintenance tickets for broken or malfunctioning assets, automatically preventing their booking while disabled.
+*   🔍 **Audit Cycles:** Verify the physical presence and condition of scoped assets via discrepancy flagging.
+*   📊 **Real-Time Analytics:** Interactive KPI dashboards detailing resource utilization, idling periods, and actionable alerts.
 
 ---
 
-Architecture
+## 🛠 Tech Stack & Architecture
 
-The backend follows a layered architecture:
+AssetFlow employs a modern, decoupled architecture connecting a dynamic single-page React frontend with a high-performance RESTful Go API, powered by a live Supabase PostgreSQL database.
 
-HTTP Request
-      │
-      ▼
- Handler
-      │
-      ▼
- Service
-      │
-      ▼
- Repository
-      │
-      ▼
- PostgreSQL
+### Frontend
+*   **Framework:** React 18, Vite, TypeScript
+*   **Styling:** Tailwind CSS (utility-first UI)
+*   **Networking:** Axios (with centralized interceptors)
+*   **Icons:** Lucide React
 
-Handler
+### Backend
+*   **Language:** Go (Golang)
+*   **Framework:** Echo (v4) for HTTP routing and middleware
+*   **Database Interface:** `pgxpool` for high-performance PostgreSQL connection pooling
+*   **Security:** JWT (JSON Web Tokens) & `bcrypt` for password hashing
+*   **Database:** Supabase PostgreSQL
 
-Responsible for:
-
-- Parsing HTTP requests
-- Input validation
-- Calling business services
-- Returning standardized JSON responses
-
-Service
-
-Responsible for:
-
-- Business rules
-- Validation
-- Authorization logic
-- Coordinating repositories
-
-Repository
-
-Responsible for:
-
-- SQL queries
-- Database transactions
-- Data persistence
+### Data Flow Overview
+1.  The client (React) requests an action via Axios, attaching a Bearer JWT.
+2.  The Echo server routes the HTTP request through standard logging and authentication middleware.
+3.  The request hits the **Handler layer** (parsing inputs/validation).
+4.  The request cascades down to the **Repository layer**, which executes the raw SQL queries using `pgxpool`.
+5.  Standardized JSON responses (`util.Success` or `util.Fail`) are returned to the client and rendered dynamically.
 
 ---
 
-Domain Modules
+## 📁 Repository Structure
 
-Authentication
+### 🖥 Frontend (`/frontend`)
+*   `src/api/` - Contains `axiosClient.ts` (interceptors) and `endpoints.ts` (centralized API route constants).
+*   `src/components/` - Reusable UI elements (`AppLayout`, `Modal`, `Badge`, `FormInput`).
+*   `src/pages/` - The core application views:
+    *   `DashboardPage.tsx` - KPI charts and system-wide alerts.
+    *   `AssetsPage.tsx` - Filterable grid/list directory of all company assets.
+    *   `AllocationsPage.tsx` - Assignments to individuals.
+    *   `MaintenancePage.tsx` - Kanban-style ticketing for broken assets.
+    *   `BookingsPage.tsx` - Timeline view for reserving shared resources.
+    *   `AuditPage.tsx` - Discrepancy flagging.
+    *   `OrganizationPage.tsx` - Management of categories, departments, and user creation.
+    *   `NotificationsPage.tsx` - System logs and approval alerts.
 
-Handles:
-
-- User Registration
-- Login
-- JWT Generation
-- Password Hashing
-- User Authentication
-
----
-
-Organization
-
-Handles:
-
-- Departments
-- Employees
-- Employee Directory
-
----
-
-Assets
-
-Handles:
-
-- Asset Registration
-- Asset Details
-- Asset Status
-- Asset Categories
+### ⚙️ Backend (`/backend`)
+*   `cmd/` - Contains `main.go`, the application's entry point that spins up the Echo server.
+*   `internal/`
+    *   `config/` - Environment variables setup (`.env` parsing).
+    *   `db/` - Connection pooling logic and an automated `seed.go` script to bulk-populate the DB.
+    *   `handler/` - HTTP request parsing (e.g., `asset.go`, `auth.go`, `booking.go`).
+    *   `middleware/` - Application-level intercepts (`auth_middleware.go` for JWT/Roles, `logger.go`).
+    *   `model/` - Struct definitions mapping exactly to the PostgreSQL schema (`asset.go`, `enums.go`).
+    *   `repository/` - The SQL query logic, isolating the database from the business handlers.
+    *   `router/` - Defines the public and protected API routes mapped to their respective handlers.
 
 ---
 
-Allocations
+## 🔌 API Endpoints Summary
 
-Handles:
+All routes are prefixed with `/api`. Protected routes require a valid JWT Bearer token.
 
-- Asset Assignment
-- Asset Transfers
-- Asset Returns
-- Allocation History
-
----
-
-Bookings
-
-Handles:
-
-- Resource Booking
-- Availability Checks
-- Booking Approval
-- Overlap Validation
+| Module | Endpoints |
+| :--- | :--- |
+| **Auth** | `POST /auth/login`, `POST /auth/signup` |
+| **Assets** | `GET /assets`, `POST /assets`, `GET /assets/:id` |
+| **Allocations** | `GET /allocations`, `POST /allocations`, `PUT /allocations/:id/return` |
+| **Bookings** | `GET /assets/:id/bookings`, `POST /bookings/create`, `PUT /bookings/:id/cancel` |
+| **Maintenance** | `GET /maintenance`, `POST /maintenance`, `PUT /maintenance/:id` |
+| **Audits** | `GET /audits/cycle/:id/assets`, `POST /audits/cycle/:id/report` |
+| **Dashboard** | `GET /dashboard/metrics`, `GET /dashboard/alerts` |
+| **Reports** | `GET /reports/analytics` |
 
 ---
 
-Maintenance
+## 🚀 Setup & Installation
 
-Handles:
+### Prerequisites
+*   [Node.js](https://nodejs.org/) (v18+)
+*   [Go](https://go.dev/) (1.21+)
+*   A [Supabase](https://supabase.com/) PostgreSQL database (or local PostgreSQL instance).
 
-- Maintenance Requests
-- Scheduled Maintenance
-- Completion Tracking
-- Maintenance History
+### 1. Database Initialization
+Create a new Supabase project and execute the provided `schema.sql` (if available) to generate the tables, or use the built-in Go struct models.
 
----
+### 2. Backend Setup
+1.  Navigate to the backend directory:
+    ```bash
+    cd backend
+    ```
+2.  Install Go modules:
+    ```bash
+    go mod tidy
+    ```
+3.  Create a `.env` file in the `/backend` root:
+    ```env
+    # Server config
+    PORT=8080
 
-Audits
+    # JWT Config
+    JWT_SECRET=super_secret_jwt_key_change_me
+    JWT_EXPIRATION_HOURS=24
 
-Handles:
+    # DB Config (Supabase Postgres)
+    DB_HOST=db.your-supabase-url.supabase.co
+    DB_PORT=5432
+    DB_USER=postgres
+    DB_PASSWORD=your_password
+    DB_NAME=postgres
+    DB_SSLMODE=disable
+    ```
+4.  Run the application:
+    ```bash
+    go run cmd/main.go
+    ```
+    *The server will start on port 8080 and automatically run the `seed.go` script if the database is empty, generating 100+ demo assets, users, and allocations.*
 
-- Asset Verification
-- Audit Logs
-- Compliance Checks
+### 3. Frontend Setup
+1.  Navigate to the frontend directory:
+    ```bash
+    cd frontend
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  The frontend is configured to talk to `http://127.0.0.1:8080` by default via `src/api/axiosClient.ts`.
+4.  Start the Vite development server:
+    ```bash
+    npm run dev
+    ```
+    *The application will be accessible at http://localhost:5173.*
 
----
-
-Dashboard
-
-Provides:
-
-- Asset Statistics
-- Allocation Summary
-- Booking Metrics
-- Maintenance Metrics
-- Audit KPIs
-
----
-
-Models
-
-The "models" package contains the application's core domain entities that map directly to the PostgreSQL schema.
-
-Examples include:
-
-- User
-- Asset
-- Allocation
-- Booking
-- Maintenance
-- Audit
-
-Shared enums such as:
-
-- User Roles
-- Asset Status
-- Booking Status
-
-are defined in:
-
-internal/models/enums.go
-
----
-
-Middleware
-
-Authentication Middleware
-
-- JWT Verification
-- Role Validation
-- Protected Routes
-
-Logger Middleware
-
-- Request Logging
-- Response Status
-- Execution Time
+### 4. Logging In
+If the database was freshly seeded by the backend, use the following credentials to access the full admin suite:
+*   **Email:** `admin@company.com`
+*   **Password:** `SecurePassword123!`
 
 ---
 
-Utilities
-
-Common reusable utilities include:
-
-- JWT helpers
-- Password hashing
-- Standard API responses
+## 🔒 Security Posture
+*   **JWT Integrity:** Stateless authentication requiring token validation on every protected route.
+*   **Role Validation:** Admin endpoints immediately reject (`403 Forbidden`) requests originating from `Employee` tokens.
+*   **SQL Injection Prevention:** Go's `pgxpool` strictly uses parameterized queries (`$1, $2`).
+*   **CORS Policies:** Configured in `cmd/main.go` to strictly allow trusted origins.
 
 ---
 
-Database
-
-Database configuration is managed inside:
-
-internal/database/postgres.go
-
-Database migrations are located in:
-
-migrations/
-
-Example:
-
-000001_init_schema.up.sql
-000001_init_schema.down.sql
-
----
-
-Environment Variables
-
-Create a ".env" file in the project root.
-
-PORT=8080
-
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=password
-DB_NAME=assetflow
-DB_SSLMODE=disable
-
-JWT_SECRET=your-secret-key
-
----
-
-Getting Started
-
-1. Clone the repository
-
-git clone https://github.com/your-username/assetflow-backend.git
-
-cd assetflow-backend
-
-2. Install dependencies
-
-go mod tidy
-
-3. Configure environment
-
-Create the ".env" file and update the database credentials.
-
-4. Run database migrations
-
-Apply the SQL migration files located in:
-
-migrations/
-
-using your preferred migration tool.
-
-5. Run the application
-
-go run cmd/server/main.go
-
-The API will start on:
-
-http://localhost:8080
-
----
-
-API Design
-
-The API follows RESTful conventions.
-
-Example endpoints:
-
-POST   /api/auth/login
-POST   /api/auth/register
-
-GET    /api/assets
-POST   /api/assets
-
-GET    /api/allocations
-POST   /api/allocations
-
-GET    /api/bookings
-POST   /api/bookings
-
-GET    /api/maintenance
-POST   /api/maintenance
-
-GET    /api/audits
-
-GET    /api/dashboard
-
----
-
-Security
-
-- JWT Authentication
-- Password Hashing with bcrypt
-- Role-Based Access Control (RBAC)
-- Protected API Routes
-- Centralized Authentication Middleware
-
----
-
-Tech Stack
-
-**Frontend:**
-- React (Vite)
-- TypeScript
-- Tailwind CSS
-- Axios
-
-**Backend:**
-- Go (Golang)
-- PostgreSQL (Supabase)
-- JWT Authentication
-- bcrypt
-- SQL Migrations
-- REST API
-
----
-
-Future Improvements
-
-- Refresh Tokens
-- API Documentation (Swagger/OpenAPI)
-- Redis Caching
-- Background Workers
-- Email Notifications
-- File Upload Support
-- Docker & Docker Compose
-- CI/CD Pipeline
-- Unit & Integration Testing
-- Prometheus & Grafana Monitoring
-
----
-
-License
-
-This project is licensed under the MIT License.
+*AssetFlow - Designed for absolute visibility over your organization's physical footprint.*
