@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	_ "github.com/joho/godotenv/autoload"
@@ -15,6 +16,7 @@ type Config struct {
 	Primary  Primary        `koanf:"primary" validate:"required"`
 	Server   ServerConfig   `koanf:"server" validate:"required"`
 	Database DatabaseConfig `koanf:"database" validate:"required"`
+	JWT 	JWTConfig		`koanf:"jwt" validate:"required"`
 }
 
 type Primary struct {
@@ -27,6 +29,13 @@ type ServerConfig struct {
 	WriteTimeout       int      `koanf:"write_timeout" validate:"required"`
 	IdleTimeout        int      `koanf:"idle_timeout" validate:"required"`
 	CORSAllowedOrigins []string `koanf:"cors_allowed_origins" validate:"required"`
+}
+
+type JWTConfig struct {
+	JWTSecret        string        `koanf:"jwt_secret" validate:"required"`
+	AccessTokenTTL   time.Duration `koanf:"access_token_ttl" validate:"required"`
+	RefreshTokenTTL  time.Duration `koanf:"refresh_token_ttl" validate:"required"`
+	RefreshCookieKey string        `koanf:"refresh_cookie_key" validate:"required"`
 }
 
 type DatabaseConfig struct {
@@ -117,11 +126,11 @@ func LoadConfig() (*Config, error) {
 	envVars := make(map[string]string)
 	for _, env := range os.Environ() {
 		parts := strings.SplitN(env, "=", 2)
-		if len(parts) == 2 && strings.HasPrefix(parts[0], "ASSET-FLOW_") {
+		if len(parts) == 2 && strings.HasPrefix(parts[0], "ASSET_FLOW_") {
 			key := parts[0]
 			value := parts[1]
 
-			configKey := strings.ToLower(strings.TrimPrefix(key, "ASSET-FLOW_"))
+			configKey := strings.ToLower(strings.TrimPrefix(key, "ASSET_FLOW_"))
 
 			if mapData, isMap := parseMapString(value); isMap {
 				for mapKey, mapValue := range mapData {
@@ -134,8 +143,8 @@ func LoadConfig() (*Config, error) {
 		}
 	}
 
-	err := k.Load(env.ProviderWithValue("ASSET-FLOW_", ".", func(key, value string) (string, any) {
-		return strings.ToLower(strings.TrimPrefix(key, "ASSET-FLOW_")), value
+	err := k.Load(env.ProviderWithValue("ASSET_FLOW_", ".", func(key, value string) (string, any) {
+		return strings.ToLower(strings.TrimPrefix(key, "ASSET_FLOW_")), value
 	}), nil)
 
 	if err != nil {
